@@ -1,26 +1,42 @@
-name: Deploy
-on: [ push ]
+name: CI
+on:
+  push:
+    branches:
+      - 'main'
+
 jobs:
-  build:
+  build-nginx-image:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Copy repository contents via scp
-        uses: appleboy/scp-action@master
-        env:
-          HOST: ${{ secrets.HOST }}
-          USERNAME: ${{ secrets.USERNAME }}
-          KEY: ${{ secrets.SSHKEY }}
-          PORT: 22
-        with:
-          source: "."
-          target: "/var/www/html"
-
-      - name: Executing remote command
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          USERNAME: ${{ secrets.USERNAME }}
-          PORT: 22
-          KEY: ${{ secrets.SSHKEY }}
-          script: ls
+      - uses: actions/checkout@v2
+      - name: Build image
+        run: docker build -t nginx -f ./docker/nginx/Dockerfile .
+      - name: Login to GHCR
+        run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Push image to GHCR
+        run: |
+          docker push ghcr.io/${{ github.repository }}/nginx:latest
+#  build:
+#    #todo: remove .git , .github, .gitignore and etc.
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v1
+#      - name: Copy repository contents via scp
+#        uses: appleboy/scp-action@master
+#        env:
+#          HOST: ${{ secrets.HOST }}
+#          USERNAME: ${{ secrets.USERNAME }}
+#          KEY: ${{ secrets.SSHKEY }}
+#          PORT: 22
+#        with:
+#          source: "."
+#          target: "/var/www/html"
+#
+#      - name: Executing remote command
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.HOST }}
+#          USERNAME: ${{ secrets.USERNAME }}
+#          PORT: 22
+#          KEY: ${{ secrets.SSHKEY }}
+#          script: ls
