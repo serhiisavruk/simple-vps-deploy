@@ -1,0 +1,19 @@
+addons:
+  ssh_known_hosts: 45.148.31.26
+branches:
+  only:
+    - main
+    - staging
+before_install:
+  - cp .travis/id_rsa ~/.ssh/travis_rsa
+  - chmod 600 ~/.ssh/travis_rsa
+install:
+  - echo "installing..."
+script:
+  - echo "code quality and tests"
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: .travis/deploy.sh
+  on:
+    all_branches: true
