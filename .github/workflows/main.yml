@@ -16,11 +16,13 @@ jobs:
       - name: Push image to GHCR
         run: |
           IMAGE_ID=ghcr.io/${{ github.repository }}/nginx
+          VERSION=latest
 
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
-          docker push $IMAGE_ID:latest
+          docker tag nginx $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
 #  build:
 #    #todo: remove .git , .github, .gitignore and etc.
 #    runs-on: ubuntu-latest
