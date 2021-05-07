@@ -5,12 +5,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-composer-${{ hashFiles('composer.json') }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.2
+          extensions: pdo
+          coverage: none
+
       - name: Install composer dependencies
         run: composer install -q --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+
       - name: Check code styles
         run: composer phpcs
+
       - name: Run unit tests
-        run: composer tests
+        run: vendor/bin/phpunit --verbose
 
   build-nginx-image:
     runs-on: ubuntu-latest
