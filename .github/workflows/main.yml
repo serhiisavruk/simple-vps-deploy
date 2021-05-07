@@ -1,14 +1,21 @@
-name: Build images
-on:
-  workflow_run:
-    branches: [main]
-    workflows: ["CI test"]
-    types:
-      - completed
-
+name: CI/CD workflow
+on: [push]
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install composer dependencies
+        run: composer install -q --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+      - name: Check code styles
+        run: composer phpcs
+      - name: Run unit tests
+        run: composer tests
+
   build-nginx-image:
     runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
       - name: Build image
@@ -25,8 +32,11 @@ jobs:
 
           docker tag nginx $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+
   build-php-image:
     runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
       - name: Build image
@@ -43,3 +53,27 @@ jobs:
 
           docker tag php $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+#  build:
+#    #todo: remove .git , .github, .gitignore and etc.
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v1
+#      - name: Copy repository contents via scp
+#        uses: appleboy/scp-action@master
+#        env:
+#          HOST: ${{ secrets.HOST }}
+#          USERNAME: ${{ secrets.USERNAME }}
+#          KEY: ${{ secrets.SSHKEY }}
+#          PORT: 22
+#        with:
+#          source: "."
+#          target: "/var/www/html"
+#
+#      - name: Executing remote command
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.HOST }}
+#          USERNAME: ${{ secrets.USERNAME }}
+#          PORT: 22
+#          KEY: ${{ secrets.SSHKEY }}
+#          script: ls
