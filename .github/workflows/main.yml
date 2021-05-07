@@ -31,7 +31,7 @@ jobs:
   build-nginx-image:
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
       - name: Build image
@@ -52,7 +52,7 @@ jobs:
   build-php-image:
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
       - name: Build image

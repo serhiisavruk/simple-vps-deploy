@@ -5,7 +5,7 @@ class TestTest extends \PHPUnit\Framework\TestCase
     public function testIsTwoEqualsTwo()
     {
         $a = 2;
-        $this->assertTrue(2 == $a);
+        $this->assertTrue(1 == $a);
     }
 
 //    public function testIsOneEqualsTwo()
