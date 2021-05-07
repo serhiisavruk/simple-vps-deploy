@@ -1,3 +1,11 @@
+LOCAL = local
+PRODUCTION = production
+
+PHP_CONTAINER_NAME = php
+NGINX_CONTAINER_NAME = nginx
+
+ENVIRONMENT ?= local
+
 build:
 	docker build -t test-nginx -f ./docker/nginx/Dockerfile .
 	docker build -t test-php -f ./docker/php/Dockerfile .
@@ -8,15 +16,22 @@ push:
 deploy: build, push
 
 run:
-	docker run -dti --name php test-php
-	docker run -dti --name nginx --link php -p 8000:80 test-nginx
+ifeq ($(ENVIRONMENT), ${LOCAL})
+	docker run -dti --name ${PHP_CONTAINER_NAME} -v ${PWD}:/var/www/html test-php
+	docker run -dti --name ${NGINX_CONTAINER_NAME} --link ${PHP_CONTAINER_NAME} -p 8000:80 test-nginx
+else
+	docker run -dti --name ${PHP_CONTAINER_NAME} test-php
+	docker run -dti --name ${NGINX_CONTAINER_NAME} --link php -p 8000:80 test-nginx
+endif
+
+prune: stop remove
 
 stop:
-	docker stop nginx php
+	docker stop ${NGINX_CONTAINER_NAME} ${PHP_CONTAINER_NAME}
 
 remove:
-	docker rm nginx php
+	docker rm ${NGINX_CONTAINER_NAME} ${PHP_CONTAINER_NAME}
 	docker rmi test-nginx test-php
 
 test:
-	docker exec -it php /bin/bash -c "composer phpcs && composer tests"
+	docker exec -it ${PHP_CONTAINER_NAME} /bin/bash -c "composer phpcs && composer tests"
