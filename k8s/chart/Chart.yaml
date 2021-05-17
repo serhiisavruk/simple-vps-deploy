@@ -1,0 +1,11 @@
+apiVersion: v2
+name: chart
+description: A Helm chart for my simple vps application
+type: application
+version: 1.0.0
+appVersion: "1.16.0"
+dependencies:
+  - name: nginx
+    version: "8.9.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    alias: nginx
