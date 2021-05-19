@@ -1,53 +1,34 @@
-name: CI/CD workflow
-on: [push]
+name: CD workflow
+on:
+  push:
+    tags:
+      - 'v*.*.*'
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Cache composer dependencies
-        uses: actions/cache@v1
-        with:
-          path: ~/.composer/cache/files
-          key: dependencies-composer-${{ hashFiles('composer.json') }}
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 7.2
-          extensions: pdo
-          coverage: none
-
-      - name: Install composer dependencies
-        run: composer install -q --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
-
-      - name: Check code styles
-        run: composer phpcs
-
-      - name: Run unit tests
-        run: composer tests
-
   build-nginx-image:
     runs-on: ubuntu-latest
     needs: test
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
+      - name: Get release version
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v2
       - name: Build image
         run: docker build -t nginx -f ./docker/nginx/Dockerfile .
+
       - name: Login to GHCR
         run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Push image to GHCR
         run: |
           IMAGE_ID=ghcr.io/${{ github.repository }}/nginx
-          VERSION=latest
 
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
-          docker tag nginx $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          docker tag nginx $IMAGE_ID:$RELEASE_VERSION
+          docker push $IMAGE_ID:$RELEASE_VERSION
 
   build-php-image:
     runs-on: ubuntu-latest
@@ -55,20 +36,25 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
+      - name: Get release version
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v2
       - name: Build image
         run: docker build -t php -f ./docker/php/Dockerfile .
+
       - name: Login to GHCR
         run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Push image to GHCR
         run: |
           IMAGE_ID=ghcr.io/${{ github.repository }}/php
-          VERSION=latest
 
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
-          docker tag php $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          docker tag php $IMAGE_ID:$RELEASE_VERSION
+          docker push $IMAGE_ID:$RELEASE_VERSION
 #  build:
 #    #todo: remove .git , .github, .gitignore and etc.
 #    runs-on: ubuntu-latest
