@@ -5,53 +5,6 @@ on:
       - 'v*.*.*'
 
 jobs:
-  build-nginx-image:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Get release version
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-
-      - uses: actions/checkout@v2
-      - name: Build image
-        run: docker build -t nginx -f ./docker/nginx/Dockerfile .
-
-      - name: Login to GHCR
-        run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - name: Push image to GHCR
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository }}/nginx
-
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
-          docker tag nginx $IMAGE_ID:$RELEASE_VERSION
-          docker push $IMAGE_ID:$RELEASE_VERSION
-
-  build-php-image:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Get release version
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-
-      - uses: actions/checkout@v2
-      - name: Build image
-        run: docker build -t php -f ./docker/php/Dockerfile .
-
-      - name: Login to GHCR
-        run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - name: Push image to GHCR
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository }}/php
-
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
-          docker tag php $IMAGE_ID:$RELEASE_VERSION
-          docker push $IMAGE_ID:$RELEASE_VERSION
 #  build:
 #    #todo: remove .git , .github, .gitignore and etc.
 #    runs-on: ubuntu-latest
