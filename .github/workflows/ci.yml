@@ -59,7 +59,7 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Configure Kubernetes
-        run: 'echo $KUBECONFIG > ./kubeconfig.yaml'
+        run: 'echo $KUBECONFIG | base64 -d > ./kubeconfig.yaml'
         env:
           KUBECONFIG: ${{secrets.KUBECONFIG}}
 
