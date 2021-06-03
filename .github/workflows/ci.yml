@@ -58,14 +58,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Prepare helm
-        run: ./k8s/bin/helm-deploy.sh
-
       - name: Configure Kubernetes
-        run: 'echo $KUBECONFIG | base64 -d > ./kubeconfig.yaml'
+        run: 'echo $KUBECONFIG > ./kubeconfig.yaml'
 
       - name: Set kubernetes context
         run: kubectl --kubeconfig=kubeconfig.yaml config use-context digitalocean-test
+
+      - name: Prepare helm
+        run: ./k8s/bin/helm-deploy.sh
 
       - name: Deploy helm chart
         uses: 'deliverybot/helm@v1'
