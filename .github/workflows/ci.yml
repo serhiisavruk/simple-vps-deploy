@@ -56,7 +56,6 @@ jobs:
 #    needs: [build-nginx-image, build-php-image]
     steps:
       - name: Prepare helm
-        uses: actions/checkout@v2
         run: ./k8s/bin/helm-deploy.sh
 
       - name: Deploy helm chart
