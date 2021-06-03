@@ -55,9 +55,11 @@ jobs:
     runs-on: ubuntu-latest
 #    needs: [build-nginx-image, build-php-image]
     steps:
-      - uses: actions/checkout@v1
+      - name: Prepare helm
+        uses: actions/checkout@v2
+        run: ./k8s/bin/helm-deploy.sh
 
-      - name: Deploy
+      - name: Deploy helm chart
         uses: 'deliverybot/helm@v1'
         with:
           release: 'app'
