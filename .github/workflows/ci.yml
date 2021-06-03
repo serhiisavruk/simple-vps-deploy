@@ -62,10 +62,10 @@ jobs:
         run: ./k8s/bin/helm-deploy.sh
 
       - name: Configure Kubernetes
-        run: 'echo "$KUBECONFIG" > ~/.kube/config'
+        run: 'echo $KUBECONFIG | base64 -d > ./kubeconfig.yaml'
 
       - name: Set kubernetes context
-        run:  kubectl config use-context digitalocean-test
+        run: kubectl --kubeconfig=kubeconfig.yaml config use-context digitalocean-test
 
       - name: Deploy helm chart
         uses: 'deliverybot/helm@v1'
@@ -77,4 +77,4 @@ jobs:
           token: '${{ github.token }}'
           value-files: 'k8s/chart/values.yaml'
         env:
-          KUBECONFIG_FILE: '~/.kube/config'
+          KUBECONFIG_FILE: './kubeconfig.yaml'
