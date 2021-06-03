@@ -60,6 +60,8 @@ jobs:
 
       - name: Configure Kubernetes
         run: 'echo $KUBECONFIG > ./kubeconfig.yaml'
+        env:
+          KUBECONFIG: ${{secrets.KUBECONFIG}}
 
       - name: Set kubernetes context
         run: kubectl --kubeconfig=kubeconfig.yaml config use-context digitalocean-test
