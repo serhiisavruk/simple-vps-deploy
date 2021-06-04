@@ -61,7 +61,9 @@ jobs:
       - name: Create Kubernetes config file
         run: |
           mkdir -p ./.kube/config
-          echo ${KUBECONFIG} | base64 -d > ./.kube/config
+          touch ./.kube/config/default.yaml
+          echo ${KUBECONFIG} | base64 -d > ./.kube/config/default.yaml
+          echo "KUBECONFIG=./.kube/config/default.yaml >> $GITHUB_ENV
         env:
           KUBECONFIG: ${{secrets.KUBECONFIG}}
 
