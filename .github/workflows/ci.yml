@@ -63,7 +63,7 @@ jobs:
           mkdir -p ./.kube/config
           touch ./.kube/config/default.yaml
           echo ${KUBECONFIG} > ./.kube/config/default.yaml
-          echo "KUBECONFIG=./.kube/config/default.yaml >> $GITHUB_ENV
+          echo "KUBECONFIG=./.kube/config/default.yaml" >> $GITHUB_ENV
         env:
           KUBECONFIG: ${{secrets.KUBECONFIG}}
 
