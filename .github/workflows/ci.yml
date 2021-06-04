@@ -58,13 +58,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-#      - name: Configure Kubernetes
-#        run: 'echo $KUBECONFIG > ./kubeconfig.yaml'
-#        env:
-#          KUBECONFIG: ${{secrets.KUBECONFIG}}
-#
-#      - name: Set kubernetes context
-#        run: kubectl --kubeconfig=kubeconfig.yaml config use-context digitalocean-test
+      - name: Create Kubernetes config file
+        run: |
+          mkdir -p ./.kube/config
+          echo ${KUBECONFIG} | base64 -d > ./.kube/config
+        env:
+          KUBECONFIG: ${{secrets.KUBECONFIG}}
+
+      - name: Set kubernetes context
+        run: kubectl config use-context digitalocean-test
 
       - name: Prepare helm
         run: ./k8s/bin/helm-deploy.sh
@@ -78,3 +80,5 @@ jobs:
           chart: 'k8s/chart'
           token: '${{ github.token }}'
           value-files: 'k8s/chart/values.yaml'
+        env:
+          KUBECONFIG_FILE: './kubeconfig.yaml'
