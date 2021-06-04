@@ -62,8 +62,7 @@ jobs:
         run: |
           mkdir -p $HOME/.kube
           touch $HOME/.kube/cluster.yaml
-          echo ${{secrets.KUBECONFIG}} | base64
-          echo ${{secrets.KUBECONFIG}} | base64 > $HOME/.kube/cluster.yaml
+          echo "${{secrets.KUBECONFIG}}" | base64 > $HOME/.kube/cluster.yaml
           echo "KUBECONFIG=$HOME/.kube/cluster.yaml" >> $GITHUB_ENV
 
       - name: Set kubernetes context
