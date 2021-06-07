@@ -58,16 +58,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Create Kubernetes config file
-        run: |
-          mkdir -p $HOME/.kube
-          touch $HOME/.kube/cluster.yaml
-          echo "${{secrets.KUBECONFIG}}" | base64 > $HOME/.kube/cluster.yaml
-          echo "KUBECONFIG=$HOME/.kube/cluster.yaml" >> $GITHUB_ENV
-
-      - name: Set kubernetes context
-        run: kubectl config use-context digitalocean-test
-
       - name: Prepare helm
         run: ./k8s/bin/helm-deploy.sh
 
@@ -81,4 +71,4 @@ jobs:
           token: '${{ github.token }}'
           value-files: 'k8s/chart/values.yaml'
         env:
-          KUBECONFIG_FILE: './kubeconfig.yaml'
+          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
